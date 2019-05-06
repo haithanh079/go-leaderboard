@@ -26,9 +26,9 @@ services:
     ports:
       - 8032:8080
     environment:
-      - SWAGGER_JSON=/swagger.json
+      - SWAGGER_JSON=/home/docs/swagger.json
     volumes:
-      - ./swagger/swagger.json:/swagger.json
+      - ~/:/home/docs
     networks:
       - traefik-net
 networks:
