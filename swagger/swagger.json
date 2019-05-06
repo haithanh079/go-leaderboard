@@ -1,0 +1,185 @@
+{
+  "swagger": "2.0",
+  "paths": {
+    "/learderboard/add": {
+      "post": {
+        "security": [
+          {
+            "api_key": null
+          }
+        ],
+        "description": "Add another user",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "LearderBoard"
+        ],
+        "summary": "Add another user",
+        "operationId": "AddNewUser",
+        "parameters": [
+          {
+            "type": "string",
+            "example": "user",
+            "description": "username",
+            "name": "username",
+            "in": "body",
+            "required": true
+          },
+          {
+            "type": "int",
+            "example": 1,
+            "description": "score",
+            "name": "score",
+            "in": "body",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/MemberResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server",
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/MemberResponse"
+            }
+          }
+        }
+      }
+    },
+    "/learderboard/get": {
+      "get": {
+        "security": [
+          {
+            "api_key": null
+          }
+        ],
+        "description": "Get leaderboard",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "LearderBoard"
+        ],
+        "summary": "Get leaderboard",
+        "operationId": "GetLeaderboard",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/LeaderboardResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server",
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/LeaderboardResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "LeaderboardMember": {
+      "type": "object",
+      "properties": {
+        "rank": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Rank"
+        },
+        "user": {
+          "$ref": "#/definitions/User"
+        }
+      },
+      "x-go-package": "github.com/haithanh079/go-leaderboard/model"
+    },
+    "LeaderboardRepsonse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/LearderBoard"
+        },
+        "msg": {
+          "type": "string",
+          "x-go-name": "Msg"
+        },
+        "success": {
+          "type": "boolean",
+          "x-go-name": "Success"
+        }
+      },
+      "x-go-package": "github.com/haithanh079/go-leaderboard/model/response"
+    },
+    "LearderBoard": {
+      "type": "object",
+      "properties": {
+        "learder_board": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LeaderboardMember"
+          },
+          "x-go-name": "LearderBoard"
+        }
+      },
+      "x-go-package": "github.com/haithanh079/go-leaderboard/model"
+    },
+    "MemberResponse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/LeaderboardMember"
+        },
+        "msg": {
+          "type": "string",
+          "x-go-name": "Msg"
+        },
+        "success": {
+          "type": "boolean",
+          "x-go-name": "Success"
+        }
+      },
+      "x-go-package": "github.com/haithanh079/go-leaderboard/model/response"
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "score": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Score"
+        }
+      },
+      "x-go-package": "github.com/haithanh079/go-leaderboard/model"
+    }
+  }
+}

@@ -1,0 +1,21 @@
+version: '3.7'
+
+services:
+#  #REDIS
+#  leaderboard-redis:
+#    image: "redis:alpine"
+#    ports:
+#      - 6379:6379
+#    command:
+#      - "--requirepass"
+#      - "tJNZfX44zeY57E"
+#    volumes:
+#      - ./redis/data:/data
+
+   #API
+   leaderboard-api:
+     build: .
+     ports:
+      - "8000:8000"
+#     depends_on:
+#      - redis
