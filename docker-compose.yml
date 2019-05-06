@@ -3,8 +3,8 @@ version: '3.7'
 services:
   #API
   leaderboard:
-#    image: haithanh079/go-leaderboard:latest
-    build: .
+    image: haithanh079/go-leaderboard:latest
+#    build: .
     ports:
       - 8000:8000
     networks:
