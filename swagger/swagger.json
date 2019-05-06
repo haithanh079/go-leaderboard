@@ -9,6 +9,9 @@
           }
         ],
         "description": "Add another user",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
         "produces": [
           "application/json"
         ],
@@ -64,6 +67,9 @@
           }
         ],
         "description": "Get leaderboard",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
         "produces": [
           "application/json"
         ],

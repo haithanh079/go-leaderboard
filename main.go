@@ -6,9 +6,7 @@ import (
 
 func main() {
 	r := routers.Router{}
-
 	r.Init()
-
 	r.Start()
 }
 

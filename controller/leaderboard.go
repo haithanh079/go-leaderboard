@@ -1,28 +1,21 @@
 package controller
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"strconv"
-
-	//"encoding/json"
+	"github.com/go-redis/redis"
 	"github.com/haithanh079/go-leaderboard/model"
 	"github.com/haithanh079/go-leaderboard/model/response"
+	"net/http"
 	"sort"
-	//"github.com/gomodule/redigo/redis"
+	"strconv"
+	"time"
 )
 
 type LeaderboardController struct {
 }
 
-
-var Leaderboard []model.LeaderboardMember
-var ScoreList []int
-
-
-/**
-Add user & get learderboard
- */
 
 // HandleAddUser godoc
 // swagger:operation POST /learderboard/add LearderBoard AddNewUser
@@ -32,6 +25,8 @@ Add user & get learderboard
 // Add another user
 //
 // ---
+// consumes:
+// - application/x-www-form-urlencoded
 // produces:
 // - application/json
 // schemes:
@@ -68,10 +63,24 @@ func (LeaderboardController *LeaderboardController) AddUserToLeaderboard(c *gin.
 	if err != nil {
 		responseDTO = response.MemberResponse{response.BaseResponse{Success:false, Code: 1, Msg: "Score must be Integer!"}, model.LeaderboardMember{}}
 	}else {
+		var Leaderboard []model.LeaderboardMember
+		redisO, _ := c.Get("redis")
+		redisClient := redisO.(*redis.Client)
+
+		result, err := redisClient.Get("LEADERBOARD").Result()
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(result)
+		err = json.Unmarshal([]byte(result), &Leaderboard)
 		var user = model.User{Name: c.PostForm("username"), Score: score}
-		var currentUser = model.LeaderboardMember{user, calculateRank(user)}
+		var currentUser = model.LeaderboardMember{user, calculateRank(user, redisClient)}
 		Leaderboard = append(Leaderboard, currentUser)
-		resetRank()
+		resetRank(Leaderboard, redisClient)
+
+		serialized,err := json.Marshal(Leaderboard)
+		redisClient.Set("LEADERBOARD", string(serialized), 1*time.Hour)
+
 		responseDTO.Success = true
 		responseDTO.Code = 0
 		responseDTO.Msg = "Success"
@@ -88,6 +97,8 @@ func (LeaderboardController *LeaderboardController) AddUserToLeaderboard(c *gin.
 // Get leaderboard
 //
 // ---
+// consumes:
+// - application/x-www-form-urlencoded
 // produces:
 // - application/json
 // schemes:
@@ -107,24 +118,42 @@ func (LeaderboardController *LeaderboardController) AddUserToLeaderboard(c *gin.
 //       type: object
 //       "$ref": "#/definitions/LeaderboardResponse"
 func (LeaderboardController *LeaderboardController) GetLeaderBoard(c *gin.Context)  {
+	var Leaderboard []model.LeaderboardMember
+	redisO, _ := c.Get("redis")
+	redisClient := redisO.(*redis.Client)
+
+	result, err := redisClient.Get("LEADERBOARD").Result()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(result)
+	err = json.Unmarshal([]byte(result), &Leaderboard)
 	responseDTO := response.LeaderboardRepsonse{response.BaseResponse{Success:true, Code:0, Msg:"Success"}, model.LearderBoard{Leaderboard}}
 	c.JSON(http.StatusOK, responseDTO)
 }
 
-func calculateRank(user model.User) int {
+func calculateRank(user model.User, client *redis.Client) int {
+	var ScoreList []int
+	result, err := client.Get("SCORELIST").Result()
+	if err != nil{
+		panic(err)
+	}
+	err = json.Unmarshal([]byte(result), &ScoreList)
 	var currentRank = getIndexIfExistScoreInArray(user.Score, ScoreList)
 	if currentRank != -1{
 		return currentRank
 	}
 	ScoreList = append(ScoreList, user.Score)
 	sort.Ints(ScoreList)
+	serialized,err := json.Marshal(ScoreList)
+	client.Set("SCORELIST", string(serialized), 1*time.Hour)
 	return getIndexIfExistScoreInArray(user.Score, ScoreList)
 }
 
-func resetRank()  {
+func resetRank(Leaderboard []model.LeaderboardMember, client *redis.Client)  {
 	for index := 0; index < len(Leaderboard); index++ {
 		currentUser := &Leaderboard[index]
-		currentUser.Rank = calculateRank(currentUser.User)
+		currentUser.Rank = calculateRank(currentUser.User, client)
 	}
 }
 
