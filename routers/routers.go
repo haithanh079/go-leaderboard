@@ -20,13 +20,19 @@ type Router struct {
 }
 
 func (r *Router) ServeHTTP(http.ResponseWriter, *http.Request) {
-	panic("implement me")
 }
 
-func (r *Router) Init() {
-	if err := godotenv.Load(); err != nil {
-		log.Println(err)
-		panic(err)
+func (r *Router) Init(testing bool) {
+	if testing {
+		if err := godotenv.Load("../.env"); err != nil {
+			log.Println(err)
+			panic(err)
+		}
+	}else {
+		if err := godotenv.Load(); err != nil {
+			log.Println(err)
+			panic(err)
+		}
 	}
 
 	e := gin.Default()

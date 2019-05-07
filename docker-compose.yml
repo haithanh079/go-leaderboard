@@ -7,8 +7,6 @@ services:
 #    build: .
     ports:
       - 8000:8000
-    networks:
-      - traefik-net
   #REDIS
   redis:
     image: "redis:alpine"
@@ -17,8 +15,6 @@ services:
     command: 
       - "--requirepass"
       - "tJNZfX44zeY57E"
-    networks:
-      - traefik-net
     volumes:
       - ./redis/data:/data
   docs:
@@ -29,8 +25,3 @@ services:
       - SWAGGER_JSON=/home/docs/swagger.json
     volumes:
       - ~/:/home/docs
-    networks:
-      - traefik-net
-networks:
-  traefik-net:
-    external: true
